@@ -1,0 +1,29 @@
+import pygame
+
+WIDTH = 800
+HEIGHT = 600
+FPS = 60
+TILE_SIZE = 40
+
+GRID_WIDTH = WIDTH // TILE_SIZE
+GRID_HEIGHT = HEIGHT // TILE_SIZE
+
+WHITE = (255, 255, 255)
+BLACK = (0, 0, 0)
+GRAY = (128, 128, 128)
+RED = (255, 0, 0)
+GREEN = (0, 255, 0)
+BLUE = (0, 0, 255)
+YELLOW = (255, 255, 0)
+BROWN = (139, 69, 19)
+
+GAME_TITLE = "像素地牢冒险"
+
+PLAYER_SPEED = 5
+
+PLAYER_MAX_HP = 100
+PLAYER_ATK = 10
+
+DB_NAME = "game_save.db"
+
+FONT_PATH = "C:/Windows/Fonts/simhei.ttf"
