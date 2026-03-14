@@ -1,0 +1,72 @@
+# config.py - 游戏配置模块
+# 存储窗口尺寸、颜色、帧率等常量
+
+import pygame
+
+# 窗口配置
+WINDOW_WIDTH = 800
+WINDOW_HEIGHT = 600
+FPS = 30  # 降低帧率以减少CPU占用，提高稳定性
+TITLE = "Pixel Dungeon Glow - 像素地牢冒险"
+
+# 地图配置
+TILE_SIZE = 32
+MAP_WIDTH = 25
+MAP_HEIGHT = 18
+
+# 颜色定义 (R, G, B)
+COLOR_BLACK = (0, 0, 0)
+COLOR_WHITE = (255, 255, 255)
+COLOR_GRAY = (128, 128, 128)
+COLOR_DARK_GRAY = (64, 64, 64)
+COLOR_RED = (255, 0, 0)
+COLOR_GREEN = (0, 255, 0)
+COLOR_BLUE = (0, 0, 255)
+COLOR_YELLOW = (255, 255, 0)
+COLOR_ORANGE = (255, 165, 0)
+COLOR_PURPLE = (128, 0, 128)
+COLOR_BROWN = (139, 69, 19)
+
+# 地牢颜色
+COLOR_FLOOR = (80, 80, 80)
+COLOR_WALL = (40, 40, 40)
+COLOR_DOOR = (139, 69, 19)
+
+# 玩家颜色
+COLOR_PLAYER = (0, 255, 0)
+
+# 怪物颜色
+COLOR_MONSTER = (255, 0, 0)
+
+# 金币颜色
+COLOR_COIN = (255, 215, 0)
+
+# 玩家初始属性
+PLAYER_DEFAULT_HP = 100
+PLAYER_DEFAULT_ATTACK = 10
+PLAYER_DEFAULT_SPEED = 4
+PLAYER_DEFAULT_GOLD = 0
+
+# 怪物属性
+MONSTER_DEFAULT_HP = 30
+MONSTER_DEFAULT_ATTACK = 5
+MONSTER_GOLD_REWARD = 10
+
+# 地牢生成配置
+ROOM_MIN_SIZE = 4
+ROOM_MAX_SIZE = 8
+MAX_ROOMS = 8
+
+# 数据库配置
+DB_NAME = "dungeon_save.db"
+
+# 游戏状态
+STATE_PLAYING = "playing"
+STATE_BATTLE = "battle"
+STATE_PAUSED = "paused"
+STATE_GAME_OVER = "game_over"
+
+# 字体配置
+FONT_SIZE_SMALL = 16
+FONT_SIZE_NORMAL = 24
+FONT_SIZE_LARGE = 32
