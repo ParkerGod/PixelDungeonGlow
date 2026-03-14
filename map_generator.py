@@ -7,7 +7,8 @@ class MapGenerator:
         self.grid_width = GRID_WIDTH
         self.grid_height = GRID_HEIGHT
         self.tile_size = TILE_SIZE
-        self.grid = [[1 for _ in range(self.grid_width)] for _ in range(self.grid_height)]
+        self.grid = [[0 for _ in range(self.grid_width)] for _ in range(self.grid_height)]
+        self.walls = []
         self.monsters = []
         self.gold_items = []
     
@@ -17,21 +18,21 @@ class MapGenerator:
                 if x == 0 or y == 0 or x == self.grid_width - 1 or y == self.grid_height - 1:
                     self.grid[y][x] = 1
                 else:
-                    self.grid[y][x] = 1
+                    self.grid[y][x] = 0
         
-        num_rooms = random.randint(4, 7)
+        num_rooms = random.randint(5, 8)
         rooms = []
         
         for _ in range(num_rooms):
-            room_w = random.randint(4, 8)
-            room_h = random.randint(4, 8)
-            room_x = random.randint(2, self.grid_width - room_w - 2)
-            room_y = random.randint(2, self.grid_height - room_h - 2)
+            room_w = random.randint(3, 7)
+            room_h = random.randint(3, 7)
+            room_x = random.randint(1, self.grid_width - room_w - 1)
+            room_y = random.randint(1, self.grid_height - room_h - 1)
             
             valid = True
-            for y in range(room_y - 1, room_y + room_h + 1):
-                for x in range(room_x - 1, room_x + room_w + 1):
-                    if self.grid[y][x] != 1:
+            for y in range(room_y, room_y + room_h):
+                for x in range(room_x, room_x + room_w):
+                    if self.grid[y][x] != 0:
                         valid = False
                         break
                 if not valid:
@@ -40,68 +41,66 @@ class MapGenerator:
             if valid:
                 for y in range(room_y, room_y + room_h):
                     for x in range(room_x, room_x + room_w):
-                        self.grid[y][x] = 0
+                        self.grid[y][x] = 2
                 
                 center_x = (room_x + room_w // 2) * TILE_SIZE
                 center_y = (room_y + room_h // 2) * TILE_SIZE
                 rooms.append((center_x, center_y, room_x, room_y, room_w, room_h))
         
-        for i in range(1, len(rooms)):
-            x1 = rooms[i-1][2] + rooms[i-1][4] // 2
-            y1 = rooms[i-1][3] + rooms[i-1][5] // 2
-            x2 = rooms[i][2] + rooms[i][4] // 2
-            y2 = rooms[i][3] + rooms[i][5] // 2
-            
-            for x in range(min(x1, x2) - 1, max(x1, x2) + 2):
-                if 0 < x < self.grid_width - 1:
-                    self.grid[y1][x] = 0
-                    if y1 + 1 < self.grid_height - 1:
-                        self.grid[y1 + 1][x] = 0
-                    if y1 - 1 > 0:
-                        self.grid[y1 - 1][x] = 0
-            
-            for y in range(min(y1, y2) - 1, max(y1, y2) + 2):
-                if 0 < y < self.grid_height - 1:
-                    self.grid[y][x2] = 0
-                    if x2 + 1 < self.grid_width - 1:
-                        self.grid[y][x2 + 1] = 0
-                    if x2 - 1 > 0:
-                        self.grid[y][x2 - 1] = 0
+        if len(rooms) > 0:
+            main_x, main_y = rooms[0][0] // TILE_SIZE, rooms[0][1] // TILE_SIZE
+            for i in range(1, len(rooms)):
+                x1, y1 = rooms[i-1][0] // TILE_SIZE, rooms[i-1][1] // TILE_SIZE
+                x2, y2 = rooms[i][0] // TILE_SIZE, rooms[i][1] // TILE_SIZE
+                self.create_corridor(x1, y1, x2, y2)
+        
+        for y in range(self.grid_height):
+            for x in range(self.grid_width):
+                if self.grid[y][x] == 0:
+                    self.grid[y][x] = 1
         
         self.spawn_monsters()
         self.spawn_gold()
         
-        return (rooms[0][0], rooms[0][1]) if rooms else (TILE_SIZE * 3, TILE_SIZE * 3)
+        return (rooms[0][0], rooms[0][1]) if rooms else (TILE_SIZE * 2, TILE_SIZE * 2)
+    
+    def create_corridor(self, x1, y1, x2, y2):
+        for x in range(min(x1, x2), max(x1, x2) + 1):
+            if self.grid[y1][x] == 0:
+                self.grid[y1][x] = 2
+        for y in range(min(y1, y2), max(y1, y2) + 1):
+            if self.grid[y][x2] == 0:
+                self.grid[y][x2] = 2
     
     def spawn_monsters(self):
         self.monsters = []
         floor_tiles = []
-        for y in range(2, self.grid_height - 2):
-            for x in range(2, self.grid_width - 2):
-                if self.grid[y][x] == 0:
+        for y in range(1, self.grid_height - 1):
+            for x in range(1, self.grid_width - 1):
+                if self.grid[y][x] == 2:
                     floor_tiles.append((x, y))
         
-        spawn_count = min(len(floor_tiles) // 10, 6)
+        spawn_count = min(len(floor_tiles) // 8, 8)
         random.shuffle(floor_tiles)
         
-        spawned = 0
-        for (x, y) in floor_tiles:
-            if spawned >= spawn_count:
+        for i in range(spawn_count):
+            if i >= len(floor_tiles):
                 break
-            if not (abs(x - 3) < 4 and abs(y - 3) < 4):
+            x, y = floor_tiles[i]
+            if not (abs(x * TILE_SIZE - TILE_SIZE * 3) < TILE_SIZE * 3 and 
+                    abs(y * TILE_SIZE - TILE_SIZE * 3) < TILE_SIZE * 3):
                 monster = Monster(x * TILE_SIZE, y * TILE_SIZE)
                 self.monsters.append(monster)
-                spawned += 1
     
     def spawn_gold(self):
         self.gold_items = []
         floor_tiles = []
         for y in range(1, self.grid_height - 1):
             for x in range(1, self.grid_width - 1):
-                if self.grid[y][x] == 0:
+                if self.grid[y][x] == 2:
                     floor_tiles.append((x, y))
         
-        spawn_count = min(len(floor_tiles) // 8, 10)
+        spawn_count = min(len(floor_tiles) // 6, 12)
         random.shuffle(floor_tiles)
         
         for i in range(spawn_count):
@@ -131,10 +130,10 @@ class MapGenerator:
             return True
         
         check_points = [
-            (rect.left + 2, rect.top + 2),
-            (rect.right - 3, rect.top + 2),
-            (rect.left + 2, rect.bottom - 3),
-            (rect.right - 3, rect.bottom - 3),
+            (rect.left, rect.top),
+            (rect.right - 1, rect.top),
+            (rect.left, rect.bottom - 1),
+            (rect.right - 1, rect.bottom - 1),
             (rect.centerx, rect.centery)
         ]
         
